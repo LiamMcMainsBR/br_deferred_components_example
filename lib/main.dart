@@ -1,3 +1,4 @@
+import 'package:br_deferred_components_example/admin_settings_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,16 +19,21 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(useMaterial3: true),
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.red),
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Deferred Components'),
           actions: [
             IconButton(onPressed: () {}, icon: const Icon(Icons.person)),
             if (isAdmin)
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.admin_panel_settings)),
+              Builder(builder: (context) {
+                return IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const AdminSettingsPage()));
+                    },
+                    icon: const Icon(Icons.admin_panel_settings));
+              }),
           ],
         ),
         body: Center(

@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
         android:label="br_deferred_components_example"
-        android:name="${applicationName}"
+        android:name="io.flutter.embedding.android.FlutterPlayStoreSplitApplication"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
