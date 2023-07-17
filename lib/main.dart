@@ -1,5 +1,8 @@
-import 'package:br_deferred_components_example/admin_settings_page.dart';
+import 'package:br_deferred_components_example/free_wallpapers.dart';
+import 'package:br_deferred_components_example/premium_wallpapers_cta.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'premium_cat_wallpapers.dart' deferred as deferred_cat_wallpapers;
 
 void main() {
   runApp(const MainApp());
@@ -13,8 +16,8 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  int index = 0;
-  bool isAdmin = false;
+  Future<void>? _libraryFuture;
+  int currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -22,49 +25,45 @@ class _MainAppState extends State<MainApp> {
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.red),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Deferred Components'),
+          title: const Text('Deferred Wallpapers'),
           actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.person)),
-            if (isAdmin)
-              Builder(builder: (context) {
-                return IconButton(
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const AdminSettingsPage()));
-                    },
-                    icon: const Icon(Icons.admin_panel_settings));
-              }),
+            if (_libraryFuture != null)
+              IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _libraryFuture = null;
+                    });
+
+                    DeferredComponent.uninstallDeferredComponent(
+                      componentName: "catWallpapersComponent",
+                    );
+                  },
+                  icon: const Icon(Icons.cancel))
           ],
         ),
-        body: Center(
-          child: Column(children: [
-            FilledButton.tonal(
-              child: const Text('Become admin'),
-              onPressed: () {
-                setState(() {
-                  isAdmin = true;
-                });
-              },
-            ),
-            FilledButton.tonal(
-              child: const Text('Remove admin'),
-              onPressed: () {
-                setState(() {
-                  isAdmin = false;
-                });
-              },
-            )
-          ]),
-        ),
+        body: currentIndex == 0
+            ? const FreeWallpapersList()
+            : PremiumWallpapersList(
+                componentDownloadFuture: _libraryFuture,
+                child: deferred_cat_wallpapers.PremiumCatWallpapers(),
+                onTapSubscribe: () {
+                  setState(() {
+                    // _libraryFuture = deferred_cat_wallpapers.loadLibrary();
+
+                    // Introduce fake delay for local testing
+                    _libraryFuture = Future.delayed(const Duration(seconds: 1))
+                        .then((value) => deferred_cat_wallpapers.loadLibrary());
+                  });
+                },
+              ),
         bottomNavigationBar: BottomNavigationBar(
-          currentIndex: index,
+          currentIndex: currentIndex,
           onTap: (value) => setState(() {
-            index = value;
+            currentIndex = value;
           }),
           items: const [
-            BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard), label: "Dashboard"),
-            BottomNavigationBarItem(icon: Icon(Icons.warning), label: "Issues")
+            BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Free"),
+            BottomNavigationBarItem(icon: Icon(Icons.pets), label: "Premium")
           ],
         ),
       ),
